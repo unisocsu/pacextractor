@@ -23,18 +23,31 @@ jobs:
           if-no-files-found: error
 
   windows:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install MinGW-w64
-        run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            make
+
       - name: Build Windows x64
-        run: make clean && make CC=x86_64-w64-mingw32-gcc CFLAGS="-O2 -Wall"
+        shell: msys2 {0}
+        run: make clean && make CC=gcc CFLAGS="-O2 -Wall"
+
       - name: Verify Windows binary
+        shell: msys2 {0}
         run: file pacextractor
+
       - name: Rename Windows binary
-        run: mv pacextractor pacextractor.exe
+        shell: pwsh
+        run: Move-Item pacextractor pacextractor.exe
       - name: Upload Windows binary
         uses: actions/upload-artifact@v4
         with:

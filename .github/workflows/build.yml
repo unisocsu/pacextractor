@@ -6,24 +6,38 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  linux:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Build
+      - name: Build Linux
         run: make
-
       - name: Verify
-        run: |
-          file pacextractor
-          ./pacextractor --help || true
-
-      - name: Upload binary
+        run: file pacextractor
+      - name: Upload Linux binary
         uses: actions/upload-artifact@v4
         with:
           name: pacextractor-linux-x64
           path: pacextractor
+          if-no-files-found: error
+
+  windows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install MinGW-w64
+        run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64
+      - name: Build Windows x64
+        run: make clean && make CC=x86_64-w64-mingw32-gcc CFLAGS="-O2 -Wall"
+      - name: Verify Windows binary
+        run: file pacextractor
+      - name: Rename Windows binary
+        run: mv pacextractor pacextractor.exe
+      - name: Upload Windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: pacextractor-windows-x64
+          path: pacextractor.exe
           if-no-files-found: error

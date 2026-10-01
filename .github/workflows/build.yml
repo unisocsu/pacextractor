@@ -41,20 +41,18 @@ jobs:
         shell: msys2 {0}
         run: make clean && make CC=gcc CFLAGS="-O2 -Wall"
 
+      - name: Rename Windows binary
+        shell: pwsh
+        run: |
+          Move-Item "pacextractor" "pacextractor.exe"
+
       - name: Verify Windows binary
         shell: pwsh
         run: |
           if (-not (Test-Path "pacextractor.exe")) {
             throw "pacextractor.exe was not created"
           }
-
-      - name: Rename Windows binary
-        shell: pwsh
-        run: |
-          if (Test-Path "pacextractor.exe") {
-            Remove-Item "pacextractor.exe" -Force
-          }
-          Move-Item "pacextractor" "pacextractor.exe"
+          Get-Item "pacextractor.exe"
       - name: Upload Windows binary
         uses: actions/upload-artifact@v4
         with:

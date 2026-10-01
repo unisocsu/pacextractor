@@ -11,10 +11,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Build Linux
         run: make
+
       - name: Verify
         run: file pacextractor
+
       - name: Upload Linux binary
         uses: actions/upload-artifact@v4
         with:
@@ -39,12 +42,9 @@ jobs:
 
       - name: Build Windows x64
         shell: msys2 {0}
-        run: make clean && make CC=gcc CFLAGS="-O2 -Wall"
-
-      - name: Rename Windows binary
-        shell: pwsh
         run: |
-          Move-Item "pacextractor" "pacextractor.exe"
+          make clean
+          make CC=gcc CFLAGS="-O2 -Wall"
 
       - name: Verify Windows binary
         shell: pwsh
@@ -53,6 +53,7 @@ jobs:
             throw "pacextractor.exe was not created"
           }
           Get-Item "pacextractor.exe"
+
       - name: Upload Windows binary
         uses: actions/upload-artifact@v4
         with:
